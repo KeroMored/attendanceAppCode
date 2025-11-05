@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleDisplayName</key>
+		<string>Attendance</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>attendance</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<true/>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<key>UIStatusBarHidden</key>
+		<false/>
+		
+		<!-- Privacy Usage Descriptions (Required for App Store) -->
+		<key>NSCameraUsageDescription</key>
+		<string>This app needs camera access to scan QR codes for attendance tracking and take student photos.</string>
+		
+		<key>NSMicrophoneUsageDescription</key>
+		<string>This app needs microphone access for audio recording features during church activities.</string>
+		
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs photo library access to select and save student photos and attendance records.</string>
+		
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>This app needs permission to save photos and attendance records to your photo library.</string>
+		
+		<key>NSContactsUsageDescription</key>
+		<string>This app needs contacts access to manage student and teacher contact information for church attendance.</string>
+		
+		<key>NSCalendarsUsageDescription</key>
+		<string>This app needs calendar access to schedule church events and attendance tracking.</string>
+		
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>This app needs location access to verify attendance at church events and activities.</string>
+		
+		<!-- App Store Requirements -->
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
+		
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>ar</string>
+			<string>en</string>
+		</array>
+		
+		<!-- Supported Device Types -->
+		<key>UIDeviceFamily</key>
+		<array>
+			<integer>1</integer>
+			<integer>2</integer>
+		</array>
+		
+		<!-- Network Security Configuration -->
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<!-- Disable arbitrary loads (force HTTPS) -->
+			<key>NSAllowsArbitraryLoads</key>
+			<false/>
+			
+			<!-- Appwrite domain configuration -->
+			<key>NSExceptionDomains</key>
+			<dict>
+				<key>cloud.appwrite.io</key>
+				<dict>
+					<key>NSExceptionRequiresForwardSecrecy</key>
+					<true/>
+					<key>NSExceptionMinimumTLSVersion</key>
+					<string>TLSv1.2</string>
+					<key>NSIncludesSubdomains</key>
+					<true/>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
+</plist>
