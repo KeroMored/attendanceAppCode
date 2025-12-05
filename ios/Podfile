@@ -49,6 +49,9 @@ post_install do |installer|
       # Disable bitcode (not needed for modern iOS)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
       
+      # Fix bridging header error with Xcode 15+
+      config.build_settings['DEFINES_MODULE'] = 'NO'
+      
       # Fix for Xcode 15+
       xcconfig_path = config.base_configuration_reference.real_path
       xcconfig = File.read(xcconfig_path)
