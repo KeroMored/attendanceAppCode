@@ -17,6 +17,10 @@ workflows:
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Clean Flutter cache
+        script: |
+          flutter clean
+          rm -rf ios/Pods ios/.symlinks ios/Podfile.lock
       - name: Get Flutter packages
         script: |
           flutter packages pub get
