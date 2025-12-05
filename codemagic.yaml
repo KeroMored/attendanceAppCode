@@ -69,6 +69,12 @@ workflows:
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Configure Gradle JVM memory
+        script: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError" >> "$CM_BUILD_DIR/android/gradle.properties"
+          echo "org.gradle.daemon=true" >> "$CM_BUILD_DIR/android/gradle.properties"
+          echo "org.gradle.parallel=true" >> "$CM_BUILD_DIR/android/gradle.properties"
+          cat "$CM_BUILD_DIR/android/gradle.properties"
       - name: Get Flutter packages
         script: |
           flutter packages pub get
