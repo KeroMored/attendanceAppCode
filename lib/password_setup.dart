@@ -14,19 +14,11 @@ class PasswordSetup extends StatelessWidget {
       // Initialize Appwrite first
       await SecureAppwriteService.initialize();
       
-      // Add your password "469369219" to the database
-      // You can set it as either user or admin password
-      await SecureAppwriteService.addPasswordToDatabase(
-        className: 'فصل الألحان', // Replace with your class name
-        userPassword: '469369219',    // As user password
-        adminPassword: '469369219',   // Also as admin password (if needed)
-      );
+      // ❌ REMOVED: addPasswordToDatabase call
+      // Code 469369219 is now hardcoded and doesn't need database entry
+      // It grants access to AddClasses page only
       
-      print('✅ Setup completed successfully!');
-      print('📋 How to use:');
-      print('  1. Password "469369219" → Works as both user and admin');
-      print('  2. Super admin passwords → "15234679!@#" or "469369219"');
-      print('  3. All passwords are now stored securely in database');
+     
       
     } catch (e) {
       print('❌ Setup failed: $e');

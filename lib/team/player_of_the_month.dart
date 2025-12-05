@@ -16,29 +16,63 @@ class PlayerOfTheMonth extends StatefulWidget {
 
 class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
   bool isLoading = true;
-  int totalGoals = 0; // This will store the student's totalCounter as goals
-  Map<String, dynamic>? playerOfTheMonth; // Future: will hold the player of the month data
+  int totalGoals = 0;
   String studentName = '';
+  List<Map<String, dynamic>> playersOfTheMonth = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchStudentData(); // Fetch the current student's data
+    _fetchStudentData();
+    _loadPlayersOfTheMonth();
   }
 
-  void _showPlayerOfTheMonthInfo() {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.scale,
-      title: 'لاعب الشهر',
-      desc: 'سيتم تحديد لاعب الشهر بناءً على أعلى عدد الأهداف (أيام الحضور)',
-      btnOkText: 'حسناً',
-      btnOkOnPress: () {
-        // Dialog automatically closes
-      },
-    ).show();
+  Future<void> _loadPlayersOfTheMonth() async {
+    try {
+      final storage = GetIt.I<appwrite.Storage>();
+      
+      // List all files in the storage bucket
+      final response = await storage.listFiles(
+        bucketId: AppwriteServices.studentImagesBucketId,
+        queries: [
+
+          appwrite.Query.orderDesc('\$createdAt'),
+          appwrite.Query.limit(50), // Limit to last 50 files
+        ],
+      );
+
+      // Filter files that match the pattern for player of the month
+      final playerFiles = response.files.where((file) {
+        return file.name.contains('_player_of_month_');
+      }).toList();
+
+      setState(() {
+        playersOfTheMonth = playerFiles.map((file) {
+          // Extract student name and class from filename
+          final parts = file.name.split('_');
+          String studentName = 'غير معروف';
+          String className = 'غير معروف';
+          if (parts.length >= 3) {
+            // Format: ClassName_StudentName_player_of_month_timestamp.extension
+            className = parts[0];
+            studentName = parts[1];
+          }
+          
+          return {
+            'id': file.$id,
+            'studentName': studentName,
+            'className': className,
+            'fileName': file.name,
+            'imageUrl': 'https://cloud.appwrite.io/v1/storage/buckets/${AppwriteServices.studentImagesBucketId}/files/${file.$id}/view?project=${AppwriteServices.projectId}',
+            'uploadDate': file.$createdAt,
+          };
+        }).toList().cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      debugPrint('Error loading players of the month: $e');
+    }
   }
+
 
   Future<void> _fetchStudentData() async {
     if (!mounted) return;
@@ -64,15 +98,6 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
       
       debugPrint("Student name: $studentName");
       debugPrint("Student goals (totalCounter): $totalGoals");
-
-      // For now, we'll just prepare the UI structure
-      playerOfTheMonth = null; // Will be implemented later
-      //
-      //
-      //
-      //studentImagesBucketId  انا عملت الباكت ده فى اابرايت تقدر تضيف فيه الصور وتجيبها منه 
-      //
-      //
     } on appwrite.AppwriteException catch (e) {
       debugPrint("AppwriteException in _fetchStudentData: ${e.message}");
       debugPrint("Error code: ${e.code}");
@@ -106,51 +131,23 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
     }
   }
 
-  Widget _getDefaultPlayerIcon([double? width, double? height]) {
-    final iconWidth = width ?? 100;
-    final iconHeight = height ?? 100;
-    final iconSize = iconWidth * 0.5;
-    
-    return Container(
-      width: iconWidth,
-      height: iconHeight,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.grey[300]!, Colors.grey[400]!],
-        ),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey[500]!, width: 2),
-      ),
-      child: Icon(
-        Icons.person,
-        size: iconSize,
-        color: Colors.grey[600],
-      ),
-    );
-  }
-
   // Add refresh functionality
   Future<void> _refreshData() async {
     await _fetchStudentData();
-    // if (mounted) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('تم تحديث البيانات بنجاح'),
-    //       backgroundColor: Colors.green,
-    //       duration: Duration(seconds: 2),
-    //     ),
-    //   );
-    // }
+    await _loadPlayersOfTheMonth();
+  }  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (e) {
+      return 'تاريخ غير معروف';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenWidth < 360;
-    final isMediumScreen = screenWidth >= 360 && screenWidth < 400;
     
     return Stack(
       children: [
@@ -174,7 +171,7 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Goals display - moved to left
+                  // Goals display
                   Flexible(
                     flex: 3,
                     child: Container(
@@ -183,12 +180,12 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
                         vertical: screenHeight * 0.01
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(screenWidth * 0.05),
                         border: Border.all(color: Colors.green, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: Colors.black.withOpacity(0.1),
                             blurRadius: 8,
                             offset: Offset(0, 2),
                           ),
@@ -201,8 +198,9 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
                             studentName,
                             style: TextStyle(
                               color: Colors.grey[700],
-                              fontSize: isSmallScreen ? 10 : (isMediumScreen ? 11 : 12),
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
+                              fontFamily: "NotoSansArabic",
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -212,7 +210,7 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
                               Icon(
                                 Icons.sports_soccer,
                                 color: Colors.green[700],
-                                size: isSmallScreen ? 20 : (isMediumScreen ? 24 : 26),
+                                size: 24,
                               ),
                               SizedBox(width: screenWidth * 0.02),
                               Flexible(
@@ -220,8 +218,9 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
                                   "$totalGoals أهداف",
                                   style: TextStyle(
                                     color: Colors.green[700],
-                                    fontSize: isSmallScreen ? 14 : (isMediumScreen ? 16 : 18),
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
+                                    fontFamily: "NotoSansArabic",
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -233,207 +232,204 @@ class _PlayerOfTheMonthState extends State<PlayerOfTheMonth> {
                     ),
                   ),
                   SizedBox(width: screenWidth * 0.02),
-                  // Refresh button - moved to right
-                  Material(
-                    elevation: 4,
-                    borderRadius: BorderRadius.circular(screenWidth * 0.035),
-                    child: InkWell(
-                      onTap: _refreshData,
-                      borderRadius: BorderRadius.circular(screenWidth * 0.035),
-                      child: Container(
-                        padding: EdgeInsets.all(screenWidth * 0.02),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
+                  // Refresh button and info button
+                  Column(
+                    children: [
+                      Material(
+                        elevation: 4,
+                        borderRadius: BorderRadius.circular(screenWidth * 0.035),
+                        child: InkWell(
+                          onTap: _refreshData,
                           borderRadius: BorderRadius.circular(screenWidth * 0.035),
-                          border: Border.all(color: Colors.blue, width: 1),
-                        ),
-                        child: Icon(
-                          Icons.refresh,
-                          color: Colors.blue,
-                          size: isSmallScreen ? 16 : (isMediumScreen ? 18 : 20),
+                          child: Container(
+                            padding: EdgeInsets.all(screenWidth * 0.02),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(screenWidth * 0.035),
+                              border: Border.all(color: Colors.blue, width: 1),
+                            ),
+                            child: Icon(
+                              Icons.refresh,
+                              color: Colors.blue,
+                              size: 18,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+               ],
                   ),
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20),
-                      isLoading ? CircularProgressIndicator(color: Colors.white,) : _buildPlayerOfTheMonthDisplay(),
-                      SizedBox(height: 20),
-                    ],
-                  ),
+            
+            // Title
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                '#لاعبي_الشهر',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: screenWidth / 15,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "NotoSansArabic",
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.7),
+                      offset: Offset(2, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
                 ),
               ),
+            ),
+            
+            // Players display
+            Expanded(
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator(color: Colors.white))
+                  : playersOfTheMonth.isEmpty
+                      ? Center(
+                          child: Container(
+                            padding: EdgeInsets.all(screenWidth * 0.05),
+                            margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.emoji_events_outlined,
+                                  size: screenWidth * 0.2,
+                                  color: Colors.grey[400],
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  'لا يوجد لاعبي شهر حتى الآن',
+                                  style: TextStyle(
+                                    fontSize: screenWidth / 18,
+                                    color: Colors.grey[600],
+                                    fontFamily: "NotoSansArabic",
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: EdgeInsets.all(screenWidth * 0.04),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                            childAspectRatio: 0.75,
+                          ),
+                          itemCount: playersOfTheMonth.length,
+                          itemBuilder: (context, index) {
+                            final player = playersOfTheMonth[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.95),
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(color: Colors.amber, width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.amber.withOpacity(0.3),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  // Trophy icon
+                                  Container(
+                                    padding: EdgeInsets.all(8),
+                                    child: Icon(
+                                      Icons.emoji_events,
+                                      color: Colors.amber,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  
+                                  // Student image
+                                  Expanded(
+                                    flex: 3,
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 8),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.amber, width: 2),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(
+                                          player['imageUrl'],
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: Icon(
+                                                Icons.person,
+                                                size: 50,
+                                                color: Colors.grey[600],
+                                              ),
+                                            );
+                                          },
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) return child;
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: Center(
+                                                child: CircularProgressIndicator(
+                                                  value: loadingProgress.expectedTotalBytes != null
+                                                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                      : null,
+                                                  strokeWidth: 2,
+                                                  color: Colors.amber,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                  // Student info
+                                  Container(
+                                    padding: EdgeInsets.all(8),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          player['studentName'],
+                                          style: TextStyle(
+                                            fontFamily: "NotoSansArabic",
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: screenWidth / 24,
+                                            color: Colors.blueGrey[800],
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
             ),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildPlayerOfTheMonthDisplay() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360;
-    final isMediumScreen = screenWidth >= 360 && screenWidth < 400;
-    
-    return Container(
-      padding: EdgeInsets.all(screenWidth * 0.05),
-      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(screenWidth * 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Column(
-        children: [
-          // Title
-          Text(
-            'لاعب الشهر',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isSmallScreen ? 20 : (isMediumScreen ? 24 : 28),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 20),
-          
-          // Player of the Month Display
-          Material(
-            elevation: 8,
-            borderRadius: BorderRadius.circular(screenWidth * 0.04),
-            shadowColor: Colors.yellow.withValues(alpha: 0.3),
-            child: Container(
-              width: isSmallScreen ? 160 : (isMediumScreen ? 200 : 230),
-              constraints: BoxConstraints(
-                minHeight: isSmallScreen ? 180 : (isMediumScreen ? 220 : 250),
-                maxHeight: isSmallScreen ? 220 : (isMediumScreen ? 260 : 300),
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.yellow[50]!, Colors.amber[100]!],
-                ),
-                borderRadius: BorderRadius.circular(screenWidth * 0.04),
-                border: Border.all(color: Colors.amber, width: 3),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Crown icon
-                  Icon(
-                    Icons.emoji_events,
-                    size: isSmallScreen ? 40 : (isMediumScreen ? 50 : 60),
-                    color: Colors.amber[700],
-                  ),
-                  SizedBox(height: 12),
-                  
-                  // Player image placeholder (TODO: implement logic to show actual player)
-                  Container(
-                    width: isSmallScreen ? 80 : (isMediumScreen ? 100 : 120),
-                    height: isSmallScreen ? 80 : (isMediumScreen ? 100 : 120),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.amber, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.amber.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: playerOfTheMonth != null 
-                        ? ClipOval(
-                            child: Image.network(
-                              playerOfTheMonth!['image'] ?? '',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return _getDefaultPlayerIcon();
-                              },
-                            ),
-                          )
-                        : Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.grey[300]!, Colors.grey[400]!],
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.person,
-                              size: isSmallScreen ? 50 : (isMediumScreen ? 60 : 70),
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                  ),
-                  SizedBox(height: 12),
-                  
-                  // Player name (TODO: show actual player name)
-                  Text(
-                    playerOfTheMonth?['name'] ?? 'سيتم تحديده قريباً',
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 16 : (isMediumScreen ? 18 : 20),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.amber[800],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 8),
-                  
-                  // Goals count
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.amber[100],
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.amber, width: 1),
-                    ),
-                    child: Text(
-                      playerOfTheMonth != null 
-                          ? '${playerOfTheMonth!['goals'] ?? 0} هدف'
-                          : 'قريباً...',
-                      style: TextStyle(
-                        fontSize: isSmallScreen ? 12 : (isMediumScreen ? 14 : 16),
-                        fontWeight: FontWeight.w600,
-                        color: Colors.amber[800],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          SizedBox(height: 20),
-          
-          // Info button
-          ElevatedButton.icon(
-            onPressed: _showPlayerOfTheMonthInfo,
-            icon: Icon(Icons.info_outline, color: Colors.white),
-            label: Text(
-              'معلومات',
-              style: TextStyle(color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[600],
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

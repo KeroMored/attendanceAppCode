@@ -51,6 +51,7 @@ class TeacherProfilePage extends StatelessWidget {
     );
     await launchUrl(launchUri);
   }
+  
   @override
   Widget build(BuildContext context) {
 

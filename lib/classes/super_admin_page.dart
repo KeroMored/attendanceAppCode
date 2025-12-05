@@ -36,14 +36,21 @@ class _SuperAdminPageState extends State<SuperAdminPage> {
       );
 
       setState(() {
-        classesData = documents.documents.map((doc) => {
-          'id': doc.$id,
-          'name': doc.data['name'] ?? '',
-          'church': doc.data['church'] ?? '',
-          'usersPassword': doc.data['usersPassword'] ?? '',
-          'adminsPassword': doc.data['adminsPassword'] ?? '',
-          'payment': doc.data['payment'] ?? '',
-        }).toList();
+        classesData = documents.documents
+          .map((doc) => {
+            'id': doc.$id,
+            'name': doc.data['name'] ?? '',
+            'church': doc.data['church'] ?? '',
+            'usersPassword': doc.data['usersPassword'] ?? '',
+            'adminsPassword': doc.data['adminsPassword'] ?? '',
+            'payment': doc.data['payment'] ?? '',
+          })
+          .where((classData) {
+            // ✅ Filter out classes containing "حصة"
+            final className = classData['name'] as String;
+            return !className.contains('حصة');
+          })
+          .toList();
         isLoading = false;
       });
     } on AppwriteException catch (e) {

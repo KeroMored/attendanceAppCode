@@ -10,6 +10,7 @@ import '../helper/constants.dart';
 import '../models/teacher_model.dart';
 import 'add_teacher.dart';
 import 'my_students.dart';
+import '../team/view_players_of_the_month.dart';
 
 class TeacherProfile extends StatefulWidget {
   const TeacherProfile({super.key});
@@ -310,6 +311,50 @@ class _TeacherProfileState extends State<TeacherProfile> {
                                 ),
                               ),
                             ),
+                            
+                            const SizedBox(height: 12),
+                            (Constants.classId=="681f72c87215111b670e")?
+                            // Player of the Month Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.amber[600],
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  elevation: 3,
+                                ),
+                                onPressed: () {
+                                  if (teacherId.isNotEmpty && className.isNotEmpty) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ViewPlayersOfTheMonthPage(
+                                          classId: teacherId,
+                                          className: className,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('لا يمكن الوصول لبيانات الفصل'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.emoji_events, size: 20),
+                                label: const Text(
+                                  'اضافة صورة لاعب الشهر',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            )
+                      :Container()
                           ],
                         ),
                       ),

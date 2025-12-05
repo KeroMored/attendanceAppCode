@@ -183,10 +183,13 @@ setState(() {
     try {
       // Check for special navigation passwords first
       if (password == "469369219") {
-                // Save session data for special passwords
+        // Save session data for special passwords
         final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('password', "469369219"); // Save to 'password' key for splash
         await prefs.setString('passwordValue', "469369219");
         await prefs.setBool('isUser', false); // Save admin access flag
+        await prefs.setString('destination', 'AddClasses'); // Save destination
+        
         Constants.passwordValue = "469369219";
         Constants.isUser = false; // Admin access
         Constants.className = '';
@@ -201,10 +204,13 @@ setState(() {
       }
       
       if (password == "15234679!@#") {
-                // Save session data for super admin password
+        // Save session data for super admin password
         final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('password', "15234679!@#"); // Save to 'password' key for splash
         await prefs.setString('passwordValue', "15234679!@#");
         await prefs.setBool('isUser', false); // Save admin access flag
+        await prefs.setString('destination', 'SuperAdminHomePage'); // Save destination
+        
         Constants.passwordValue = "15234679!@#";
         Constants.isUser = false; // Admin access
         Constants.className = '';
@@ -234,7 +240,17 @@ setState(() {
         Constants.isUser = isUserFlag;
         
         _resetFailedAttempts();
-        _navigateBasedOnUserType(result.userType);
+        
+        // ✅ Special handling for admin code 469369219
+        if (password == "469369219") {
+          // Navigate directly to AddClasses page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AddClasses()),
+          );
+        } else {
+          _navigateBasedOnUserType(result.userType);
+        }
       } else {
         _handleFailedAttempt();
         _showErrorSnackBar('كلمة المرور غير صحيحة');
@@ -242,7 +258,7 @@ setState(() {
       
     } catch (e) {
       _handleFailedAttempt();
-      _showErrorSnackBar('خطأ في تسجيل الدخول: ${e.toString()}');
+      _showErrorSnackBar('كلمة المرور غير صحيحة');
     } finally {
       setState(() {
         _isLoading = false;

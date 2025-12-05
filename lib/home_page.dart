@@ -291,8 +291,10 @@ actions: [
                 },
                   Constants.verse  // Using Bible verse icon
                 ),
-                                      SizedBox(height: sizedBoxHeight),
+                (Constants.classId=="681f72c87215111b670e")?
 
+                                      SizedBox(height: sizedBoxHeight):Container(),
+(Constants.classId=="681f72c87215111b670e")?
                   buildButton(context, "الألحان", () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => DisplayVoiceNotes()),
@@ -300,8 +302,13 @@ actions: [
                 },
                 Constants.naqoos
 
-                  ),
+                  ):
+                  Container(),
                 SizedBox(height: sizedBoxHeight),
+
+
+
+
 
                 buildButton(context, "تنبيهات", () {
                   Navigator.of(context).push(
@@ -501,28 +508,82 @@ padding: EdgeInsets.symmetric(vertical: 15),
   }
 
   Future<void> _performNormalLogout() async {
-    final pref = await SharedPreferences.getInstance();
-    await pref.setString("password", "");
-    await pref.setString("className", "");
-    await pref.setString("classId", "");
-    await pref.setString("teacherPassword", "");
-    await pref.setString("teacherId", "");
-    await pref.setString("teacherName", "");
-    await pref.setString("teacherRole", "");
-    await pref.remove("superAdminSelectedClass");
-    Constants.classId = "";
-    Constants.passwordValue = "";
-    Constants.classId = "";
-    Constants.className = "";
-    Constants.isUser = true;
-    
-    // Clear secure session to ensure proper logout
-    await SecureAppwriteService.logout();
-    
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-      (route) => false,
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blueGrey),
+                ),
+                SizedBox(height: 15),
+                Text(
+                  'جاري تسجيل الخروج...',
+                  style: TextStyle(
+                    fontSize: Constants.deviceWidth / 22,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "NotoSansArabic",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
+
+    try {
+      final pref = await SharedPreferences.getInstance();
+      await pref.setString("password", "");
+      await pref.setString("className", "");
+      await pref.setString("classId", "");
+      await pref.setString("teacherPassword", "");
+      await pref.setString("teacherId", "");
+      await pref.setString("teacherName", "");
+      await pref.setString("teacherRole", "");
+      await pref.remove("superAdminSelectedClass");
+      Constants.classId = "";
+      Constants.passwordValue = "";
+      Constants.classId = "";
+      Constants.className = "";
+      Constants.isUser = true;
+      
+      // Clear secure session to ensure proper logout
+      await SecureAppwriteService.logout();
+      
+      // Small delay to show the loading indicator
+      await Future.delayed(Duration(milliseconds: 500));
+      
+      // Dismiss loading dialog
+      Navigator.of(context).pop();
+      
+      // Navigate to login page
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+        (route) => false,
+      );
+    } catch (e) {
+      // Dismiss loading dialog in case of error
+      Navigator.of(context).pop();
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('خطأ في تسجيل الخروج'),
+        ),
+      );
+    }
   }
 }

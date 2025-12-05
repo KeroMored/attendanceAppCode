@@ -40,23 +40,29 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-  
-    // **ONE-TIME PASSWORD SETUP** - Delete this entire block after first run!
+    // **CONFIGURE CREDENTIALS ON FIRST RUN**
+    // Note: Project ID is safe to be in code (it's public information)
+    // Only API Secret Keys should be kept secret (not used in client apps)
+    await SecureConfig.configureCredentials(
+      projectId: '67c77998000b1b070682',  // Safe: Public identifier
+      endpoint: 'https://cloud.appwrite.io/v1',  // Safe: Public endpoint
+      databaseId: '67c789c1000c4f0c27b1',  // Safe: Public identifier
+      studentsCollectionId: '67d59b730034fd6feb10',  // Safe: Public identifier
+      meetingsCollectionId: '67d59b88002258394e79',   // Safe: Public identifier
+      notificationsCollectionId: '67d59b5a00177df4b26b',  // Safe: Public identifier
+      servicesCollectionId: '67d59c2400245feef83f',  // Safe: Public identifier
+      bucketId: '67cb0d9c00141ced8e90',  // Safe: Public identifier
+    );
     
     // Initialize secure Appwrite services
     await SecureAppwriteService.initialize();
     
-    // **ADD YOUR PASSWORD TO DATABASE (RUN ONCE ONLY)**
-    // Uncomment and run once, then comment out or delete:
-    /*
-    await SecureAppwriteService.addPasswordToDatabase(
-      className: 'كنيسة العذراء الصاغة',
-      userPassword: '469369219',    // Your password as user
-      adminPassword: '469369219',   // Your password as admin  
-    );
-    print('✅ Password 469369219 added to database!');
-    */
+    // ❌ REMOVED: addPasswordToDatabase call
+    // Code 469369219 is now hardcoded in SecureAppwriteService.authenticateWithPassword
+    // It does NOT need to be in the database and will NOT create any class
+    // This code is special - it only grants access to AddClasses page
     
+    // Initialize notifications    
     // Initialize notifications
     await NotificationService.initialize();
     await NotificationService.scheduleDailyVerse();

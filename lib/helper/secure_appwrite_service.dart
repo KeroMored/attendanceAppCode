@@ -99,6 +99,59 @@ class SecureAppwriteService {
     try {
       print('🔐 Starting authentication for password: "$password"');
       
+      // ✅ CHECK SPECIAL ADMIN CODE FIRST (BEFORE database lookup)
+      // Code 469369219 is NOT a class password - it's for adding new classes
+      if (password == "469369219") {
+        print('✅ SPECIAL ADMIN CODE 469369219 DETECTED - Granting AddClasses access');
+        print('⚠️ This code is NOT stored in database and does NOT create any class');
+        
+        // Save to SharedPreferences for session management
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('password', password);
+        await prefs.setBool('isUser', false);
+        await prefs.setString('destination', 'AddClasses');
+        
+        // Set Constants but DON'T set classId or className
+        Constants.passwordValue = password;
+        Constants.isUser = false;
+        // ⚠️ DON'T set Constants.classId or Constants.className - this is NOT a class!
+        
+        // Save session
+        await SecureConfig.saveUserSession('admin_add_classes', 'add_classes_admin');
+        
+        return AuthResult(
+          success: true,
+          userType: UserType.admin,
+          classId: '', // Empty - not a class
+          className: 'Add Classes Admin', // Special designation
+        );
+      }
+      
+      // ✅ CHECK SUPER ADMIN CODE
+      if (password == "15234679!@#") {
+        print('✅ SUPER ADMIN PASSWORD DETECTED');
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('password', password);
+        await prefs.setBool('isUser', false);
+        await prefs.setString('destination', 'SuperAdminHomePage');
+        
+        Constants.passwordValue = password;
+        Constants.isUser = false;
+        
+        await SecureConfig.saveUserSession('super_admin_session', 'super_admin');
+        
+        return AuthResult(
+          success: true,
+          userType: UserType.superAdmin,
+          classId: '',
+          className: 'Super Admin',
+        );
+      }
+      
+      // ✅ NOW search database for regular class passwords
+      print('🔍 Searching database for class passwords...');
+      
       // Call server-side function for password validation
       final databaseId = await SecureConfig.getDatabaseId();
       final servicesCollection = await SecureConfig.getServicesCollectionId();
@@ -326,40 +379,10 @@ class SecureAppwriteService {
   }
 
   // Helper function to add/update passwords in database
-  static Future<void> addPasswordToDatabase({
-    required String className,
-    String? userPassword,
-    String? adminPassword,
-  }) async {
-    try {
-      final databaseId = await SecureConfig.getDatabaseId();
-      final servicesCollection = await SecureConfig.getServicesCollectionId();
-      
-      print('🔧 Adding passwords to database for class: $className');
-      
-      // Create or update the class document
-      final documentData = {
-        'name': className,
-        if (userPassword != null) 'usersPassword': userPassword,
-        if (adminPassword != null) 'adminsPassword': adminPassword,
-      };
-      
-      await _databases!.createDocument(
-        databaseId: databaseId,
-        collectionId: servicesCollection,
-        documentId: 'unique()',
-        data: documentData,
-      );
-      
-      print('✅ Passwords added successfully for class: $className');
-      print('  - User password: ${userPassword ?? "not set"}');
-      print('  - Admin password: ${adminPassword ?? "not set"}');
-      
-    } catch (e) {
-      print('❌ Failed to add passwords to database: $e');
-      throw e;
-    }
-  }
+  // ❌ REMOVED: addPasswordToDatabase method
+  // This method was creating unwanted classes in the database
+  // Admin code 469369219 is now hardcoded in authenticateWithPassword
+  // and does NOT create any database entries
 
   // MITM Protection: Enhanced certificate pinning validation
   static Future<void> _validateSecureEndpointWithCertificatePinning(String endpoint) async {

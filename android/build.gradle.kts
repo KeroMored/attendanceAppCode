@@ -5,7 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.google.gms:google-services:4.4.0")
+        // Removed: Firebase (using Appwrite instead)
+        // classpath("com.google.gms:google-services:4.4.0")
     }
 }
 allprojects {

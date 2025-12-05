@@ -1,23 +1,15 @@
-// Quick setup - Add this to your main.dart temporarily
-import 'package:attendance/helper/secure_appwrite_service.dart';
+// ❌ THIS FILE IS NO LONGER NEEDED
+// Code 469369219 is now hardcoded in SecureAppwriteService.authenticateWithPassword
+// It does NOT need to be added to database
 
-// Add this function to main.dart and call it once
-Future<void> setupYourPassword() async {
-  try {
-    await SecureAppwriteService.initialize();
-    
-    // Add your password "469369219" to database
-    await SecureAppwriteService.addPasswordToDatabase(
-      className: 'كنيسة العذراء الصاغة',  // Your class name
-      userPassword: '469369219',       // For regular users  
-      adminPassword: '469369219',      // For admin access
-    );
-    
-    print('✅ Password "469369219" added to database successfully!');
-  } catch (e) {
-    print('❌ Setup error: $e');
-  }
-}
+// Password 469369219 is a SPECIAL ADMIN CODE that:
+// - Is checked BEFORE database lookup
+// - Does NOT create any class in database  
+// - Grants access to AddClasses page only
+// - Use it to add NEW classes with their own passwords
 
-// Call this in main() function ONCE:
-// await setupYourPassword();
+// To use:
+// 1. Enter 469369219 in login page
+// 2. You'll be redirected to AddClasses page
+// 3. Create your classes with their own passwords
+// 4. Those class passwords will be stored in database

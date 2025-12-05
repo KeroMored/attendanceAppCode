@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:attendance/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
