@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
   flutter_localization
   flutter_secure_storage_windows
+  flutter_sound
   permission_handler_windows
   printing
   rive_common
