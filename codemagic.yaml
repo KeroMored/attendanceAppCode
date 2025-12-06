@@ -28,7 +28,7 @@ workflows:
           flutter pub get
           echo "=== Verifying dependency_overrides ==="
           grep -A 10 "dependency_overrides:" pubspec.yaml || true
-          flutter pub deps | grep -E "(printing|mobile_scanner)" || true
+          flutter pub deps | grep -E "(printing|flutter_web_auth_2)" || true
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
