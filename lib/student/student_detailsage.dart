@@ -12,7 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+// import 'package:printing/printing.dart';  // Removed for iOS build
 
 import '../helper/appwrite_services.dart';
 import '../helper/constants.dart';

@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/pdf.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+// import 'package:printing/printing.dart';  // Removed for iOS build
 import 'package:flutter/services.dart' as root_bundle;
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:typed_data';
@@ -243,7 +243,8 @@ class _StudentsDataControlState extends State<StudentsDataControl> {
           );
         }
 
-        await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+        // await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());  // Disabled
+        print('PDF generated but printing disabled for iOS');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('إذن الوصول للملفات مغلق')),
@@ -521,7 +522,8 @@ class _StudentsDataControlState extends State<StudentsDataControl> {
         }
 
 
-        await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+        // await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());  // Disabled
+        print('PDF generated but printing disabled for iOS');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('إذن الوصول للملفات مغلق')),
@@ -751,7 +753,8 @@ class _StudentsDataControlState extends State<StudentsDataControl> {
           );
         }
 
-        await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+        // await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());  // Disabled
+        print('PDF generated but printing disabled for iOS');
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

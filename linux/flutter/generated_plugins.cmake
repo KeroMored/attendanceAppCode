@@ -8,7 +8,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_localization
   flutter_secure_storage_linux
   flutter_sound
-  printing
   rive_common
   url_launcher_linux
   window_to_front
