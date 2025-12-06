@@ -1,9 +1,12 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
+// Notifications temporarily disabled for iOS build compatibility
+// import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'bible_verse_service.dart';
 
 class NotificationService {
   static Future<void> initialize() async {
+    // Temporarily disabled for iOS build
+    /*
     await AwesomeNotifications().initialize(
       'resource://mipmap/launcher_icon.png', // Using default app icon
       [
@@ -26,9 +29,12 @@ class NotificationService {
         AwesomeNotifications().requestPermissionToSendNotifications();
       }
     });
+    */
   }
 
   static Future<void> scheduleDailyVerse() async {
+    // Temporarily disabled
+    /*
     final verse = await BibleVerseService.getTodayVerse();
     
     await AwesomeNotifications().createNotification(
@@ -47,9 +53,11 @@ class NotificationService {
         repeats: true, // Repeat daily
       ),
     );
+    */
   }
 
   static Future<void> cancelScheduledNotifications() async {
-    await AwesomeNotifications().cancelAllSchedules();
+    // Temporarily disabled
+    // await AwesomeNotifications().cancelAll();
   }
 }
