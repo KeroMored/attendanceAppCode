@@ -38,8 +38,7 @@ workflows:
         ignore_failure: true
       - name: Build iOS
         script: |
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
+          flutter build ipa --debug
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
