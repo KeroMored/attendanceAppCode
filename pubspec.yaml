@@ -42,7 +42,7 @@ dependencies:
   screenshot: ^3.0.0
   url_launcher: ^6.3.1
   flutter_localization: ^0.2.2
-  printing: ^5.14.2
+  printing: ^5.15.0
   pdf: ^3.11.3
   flutter_secure_storage: ^9.2.2
   crypto: ^3.0.5
@@ -145,7 +145,6 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-# Override problematic dependencies for iOS Xcode 15+ compatibility
+# Override problematic dependencies
 dependency_overrides:
-  printing: 5.14.2
   flutter_web_auth_2: ^4.0.0  # Fix Kotlin compilation error
