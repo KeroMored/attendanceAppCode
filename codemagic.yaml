@@ -21,9 +21,11 @@ workflows:
         script: |
           flutter clean
           rm -rf ios/Pods ios/.symlinks ios/Podfile.lock
+          flutter pub cache repair
       - name: Get Flutter packages
         script: |
-          flutter packages pub get
+          flutter pub get --no-precompile
+          flutter pub get --offline
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
