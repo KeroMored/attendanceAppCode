@@ -52,6 +52,11 @@ post_install do |installer|
       # Fix bridging header error with Xcode 15+
       config.build_settings['DEFINES_MODULE'] = 'NO'
       
+      # Exclude DKPhotoGallery - causes SDWebImage compatibility issues
+      if target.name == 'DKPhotoGallery'
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      end
+      
       # Fix for Xcode 15+
       xcconfig_path = config.base_configuration_reference.real_path
       xcconfig = File.read(xcconfig_path)
