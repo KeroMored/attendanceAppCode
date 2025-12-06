@@ -17,15 +17,18 @@ workflows:
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Clean Flutter cache
+      - name: Clean Flutter cache and force dependency refresh
         script: |
           flutter clean
           rm -rf ios/Pods ios/.symlinks ios/Podfile.lock
+          rm -rf pubspec.lock
           flutter pub cache repair
-      - name: Get Flutter packages
+      - name: Get Flutter packages with overrides
         script: |
-          flutter pub get --no-precompile
-          flutter pub get --offline
+          flutter pub get
+          echo "=== Verifying dependency_overrides ==="
+          grep -A 10 "dependency_overrides:" pubspec.yaml || true
+          flutter pub deps | grep -E "(printing|mobile_scanner)" || true
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
