@@ -149,4 +149,4 @@ flutter:
 # Override problematic dependencies
 dependency_overrides:
   flutter_web_auth_2: ^4.0.0
-  printing: 5.13.4
+  printing: 5.12.0
