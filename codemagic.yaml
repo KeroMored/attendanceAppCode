@@ -32,16 +32,6 @@ workflows:
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
-      - name: Patch mobile_scanner - Add missing UIKit import
-        script: |
-          echo "🔧 Patching mobile_scanner Swift files..."
-          find $HOME/.pub-cache/hosted/pub.dev/mobile_scanner-3.5.7/ios/Classes -name "*.swift" -type f | while read file; do
-            if ! grep -q "import UIKit" "$file"; then
-              echo "Patching: $file"
-              echo -e "import UIKit\n$(cat $file)" > "$file.tmp" && mv "$file.tmp" "$file"
-            fi
-          done
-          echo "✅ mobile_scanner patched"
       - name: Flutter analyze
         script: |
           flutter analyze
