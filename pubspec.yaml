@@ -147,5 +147,4 @@ flutter:
 
 # Override problematic dependencies for iOS Xcode 15+ compatibility
 dependency_overrides:
-  #flutter_web_auth_2: ^4.0.0
   printing: 5.14.2
