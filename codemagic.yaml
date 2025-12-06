@@ -29,23 +29,19 @@ workflows:
           echo "=== Verifying dependency_overrides ==="
           grep -A 10 "dependency_overrides:" pubspec.yaml || true
           flutter pub deps | grep -E "(printing|mobile_scanner)" || true
-      - name: Fix mobile_scanner missing UIKit import
-        script: |
-          SCANNER_FILE="$HOME/.pub-cache/hosted/pub.dev/mobile_scanner-3.5.7/ios/Classes/MobileScannerUtilities.swift"
-          if [ -f "$SCANNER_FILE" ]; then
-            if ! grep -q "import UIKit" "$SCANNER_FILE"; then
-              echo "Adding missing UIKit import to mobile_scanner"
-              sed -i '' '1s/^/import UIKit\n/' "$SCANNER_FILE"
-              echo "✅ Fixed mobile_scanner"
-            else
-              echo "✅ mobile_scanner already has UIKit import"
-            fi
-          else
-            echo "⚠️ mobile_scanner file not found at expected location"
-          fi
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
+      - name: Patch mobile_scanner - Add missing UIKit import
+        script: |
+          echo "🔧 Patching mobile_scanner Swift files..."
+          find $HOME/.pub-cache/hosted/pub.dev/mobile_scanner-3.5.7/ios/Classes -name "*.swift" -type f | while read file; do
+            if ! grep -q "import UIKit" "$file"; then
+              echo "Patching: $file"
+              echo -e "import UIKit\n$(cat $file)" > "$file.tmp" && mv "$file.tmp" "$file"
+            fi
+          done
+          echo "✅ mobile_scanner patched"
       - name: Flutter analyze
         script: |
           flutter analyze
