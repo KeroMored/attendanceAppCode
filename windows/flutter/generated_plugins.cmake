@@ -4,12 +4,17 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
+  awesome_notifications
+  cloud_firestore
   connectivity_plus
   desktop_webview_window
+  firebase_auth
+  firebase_core
   flutter_localization
   flutter_secure_storage_windows
   flutter_sound
   permission_handler_windows
+  printing
   rive_common
   share_plus
   url_launcher_windows
