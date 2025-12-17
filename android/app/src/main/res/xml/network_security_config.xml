@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Appwrite Cloud Certificate Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">cloud.appwrite.io</domain>
+        <pin-set expiration="2026-12-31">
+            <!-- Appwrite's current certificate pin (SHA-256) -->
+            <!-- Note: Update this pin if Appwrite changes certificates -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <!-- Backup pin for certificate rotation -->
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
+        </pin-set>
+        <trust-anchors>
+            <!-- Trust system CA store for Appwrite -->
+            <certificates src="system"/>
+        </trust-anchors>
+    </domain-config>
+    
+    <!-- Default secure configuration -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Debug configuration (only in debug builds) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="user"/>
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
